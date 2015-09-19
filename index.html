@@ -1,0 +1,57 @@
+<html>
+  <head>
+    <link rel="stylesheet" href="lib/jasmine.css">
+    <style>
+      .app-container { margin-bottom: 20px; }
+    </style>
+  </head>
+  <body>
+    <div class="app-container"></div>
+
+    <script>
+      function getParameterByName(name) {
+        name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+        var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+            results = regex.exec(location.search);
+        return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+      }
+      function loadScript(url, callback) {
+        var head = document.getElementsByTagName('head')[0];
+        var script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.src = url;
+        script.onreadystatechange = callback;
+        script.onload = callback;
+        head.appendChild(script);
+      }
+      function setApp(appName) {
+        var el = document.querySelector('.app-container');
+        el.innerHTML = window.appHtml || '';
+        el.setAttribute('ng-app', appName);
+      }
+    </script>
+
+    <script src="lib/jasmine.js"></script>
+    <script src="lib/jasmine-html.js"></script>
+    <script src="lib/boot.js"></script>
+
+    <script src="lib/angular.js"></script>
+    <script src="lib/angular-mocks.js"></script>
+
+    <script>
+      (function() {
+        var el = document.querySelector('.app-container');
+        var scriptName = getParameterByName('script');
+        if (!scriptName) {
+          throw new Error('Need script name in query string');
+        }
+        loadScript(scriptName + '.js', function() {
+          console.log('loaded script', scriptName);
+          setApp(scriptName);
+          angular.bootstrap(el, [scriptName]);
+        });
+      }());
+    </script>
+  </body>
+</html>
+
